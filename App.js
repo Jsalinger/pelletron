@@ -27,7 +27,7 @@ export default class App extends React.Component<Props, State> {
       stoveSwitch: "off",
       stoveVisibleOnNetwork: false,
       moduleStatus: {},
-      stoveURL: "",
+      stoveURL: "192.168.0.173",
     }
 
     this.handleTextInput = this.handleTextInput.bind(this);
