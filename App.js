@@ -43,6 +43,7 @@ export default class App extends React.Component<Props, State> {
 
     let stoveStatus = (onOrOff == "on" ? 1 : 0);
 
+    //TODO: Need to wrap whole thing with try/catch and all other fetches
     return fetch('http://' + this.state.stoveURL + '/digital/0/' + stoveStatus)
       .then((response) => response.json())
       .then((serviceResponseJson) => {
