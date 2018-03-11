@@ -41,13 +41,16 @@ export default class App extends React.Component<Props, State> {
 
   changeStoveState(onOrOff: string):Promise<any> {
     let thisApp = this;
+    let completed = false;
 
     let stoveStatus = (onOrOff == "on" ? 1 : 0);
 
     return new Promise( (resolve, reject) => {
 
       setTimeout(function() {
-        reject("Network Timeout in changeStoveStatus")
+        if (!completed) {
+          reject("Network Timeout in changeStoveStatus")
+        }
       }, 3000)
       
       fetch('http://' + this.state.stoveURL + '/digital/0/' + stoveStatus)
@@ -55,11 +58,13 @@ export default class App extends React.Component<Props, State> {
       .then((serviceResponseJson) => {
         thisApp.checkStoveState();
 
+        completed = true;
         resolve("Successfully retreived stove state: " + JSON.stringify(serviceResponseJson));
       })
       .catch((error) => {
         thisApp.checkStoveState();
 
+        completed = true;
         resolve("Could not contact stove for changeStoveState: " + error);
       })
     })
@@ -67,15 +72,19 @@ export default class App extends React.Component<Props, State> {
 
   checkStoveState():Promise<any> {
     let thisApp = this;
+    let completed = false;
 
     return new Promise(function(resolve, reject) {
       
       setTimeout(function() {
-        thisApp.setState({
-          stoveVisibleOnNetwork: false,
-        })
 
-        reject("Network Timeout in checkStoveState")
+        if (!completed) {
+          thisApp.setState({
+            stoveVisibleOnNetwork: false,
+          })
+
+          reject("Network Timeout in checkStoveState")
+        }
       }, 3000)
 
       fetch('http://' + this.state.stoveURL + '/digital/0')
@@ -87,6 +96,7 @@ export default class App extends React.Component<Props, State> {
             stoveVisibleOnNetwork: true,
           });
 
+          completed = true;
           resolve("Successfully retreived stove state: " + JSON.stringify(serviceResponseJson));
         })
         .catch((error) => {
@@ -95,6 +105,7 @@ export default class App extends React.Component<Props, State> {
             stoveVisibleOnNetwork: false,
           })
 
+          completed = true;
           resolve("Could not contact stove for stoveState: " + error);
         })
       }.bind(this))
@@ -102,14 +113,18 @@ export default class App extends React.Component<Props, State> {
 
   updateModuleStatus():Promise<any> {
     let thisApp = this;
+    let completed = false;
 
     return new Promise(function(resolve, reject) {
       setTimeout(function() {
-        thisApp.setState({
-          stoveVisibleOnNetwork: false,
-        })
+        if (!completed) {
 
-        reject("Network Timeout in updateModuleStatus")
+          thisApp.setState({
+            stoveVisibleOnNetwork: false,
+          })
+
+          reject("Network Timeout in updateModuleStatus")
+        }
       }, 3000)
 
       fetch('http://' + this.state.stoveURL)
@@ -118,6 +133,8 @@ export default class App extends React.Component<Props, State> {
           thisApp.setState({
             moduleStatus: serviceResponseJson,
           });
+
+          completed = true;
 
           resolve("Successfully retreived module status: " + JSON.stringify(serviceResponseJson));
         })
@@ -130,6 +147,8 @@ export default class App extends React.Component<Props, State> {
             stoveSwitch: "off",
             moduleStatus: {},
           })
+
+          completed = true;
 
           resolve("Could not contact stove for module status: " + error);
         })
@@ -223,7 +242,7 @@ export default class App extends React.Component<Props, State> {
             />
           </View>
         }
-        <View>
+        <View style={{ height: 250, width: 150 }}>
           <Text>The Stove is {this.state.stoveOn == true ? "On" : "Not On"}</Text>
           <Text>ID: {this.state.moduleStatus.id}</Text>
           <Text>Name: {this.state.moduleStatus.name}</Text>
