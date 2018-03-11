@@ -1,7 +1,7 @@
 // @flow
 
 import React from 'react';
-import { StyleSheet, Text, TextInput, View, Picker, Button } from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, View, Picker, Button } from 'react-native';
 
 type Props = {
 
@@ -13,6 +13,7 @@ type State = {
   stoveVisibleOnNetwork: boolean,
   moduleStatus: any,
   stoveURL: string,
+  lastMessage: string
 }
 
 export default class App extends React.Component<Props, State> {
@@ -28,87 +29,155 @@ export default class App extends React.Component<Props, State> {
       stoveVisibleOnNetwork: false,
       moduleStatus: {},
       stoveURL: "192.168.0.173",
+      lastMessage: "",
     }
 
     this.handleTextInput = this.handleTextInput.bind(this);
   }
 
   componentDidMount() {
-    this.checkStoveState();
-    this.updateModuleStatus();
+    this.checkAllModuleInfo();
   }
 
-  changeStoveState(onOrOff: string) {
+  changeStoveState(onOrOff: string):Promise<any> {
     let thisApp = this;
 
     let stoveStatus = (onOrOff == "on" ? 1 : 0);
 
-    //TODO: Need to wrap whole thing with try/catch and all other fetches
-    return fetch('http://' + this.state.stoveURL + '/digital/0/' + stoveStatus)
+    return new Promise( (resolve, reject) => {
+
+      setTimeout(function() {
+        reject("Network Timeout in changeStoveStatus")
+      }, 3000)
+      
+      fetch('http://' + this.state.stoveURL + '/digital/0/' + stoveStatus)
       .then((response) => response.json())
       .then((serviceResponseJson) => {
-        console.log(serviceResponseJson);
         thisApp.checkStoveState();
+
+        resolve("Successfully retreived stove state: " + JSON.stringify(serviceResponseJson));
       })
       .catch((error) => {
-        console.log(error);
         thisApp.checkStoveState();
-      });
+
+        resolve("Could not contact stove for changeStoveState: " + error);
+      })
+    })
   }
 
-  checkStoveState() {
+  checkStoveState():Promise<any> {
     let thisApp = this;
 
-    return fetch('http://' + this.state.stoveURL + '/digital/0')
-      .then((response) => response.json())
-      .then((serviceResponseJson) => {
-        thisApp.setState({
-          stoveOn: serviceResponseJson.return_value == 1 ? true : false,
-          stoveSwitch: serviceResponseJson.return_value == 1 ? "on" : "off",
-          stoveVisibleOnNetwork: true,
-        });
-      })
-      .catch((error) => {
-        //Network error, couldn't contact the stove
-        console.log(error);
+    return new Promise(function(resolve, reject) {
+      
+      setTimeout(function() {
         thisApp.setState({
           stoveVisibleOnNetwork: false,
-
         })
-      })
+
+        reject("Network Timeout in checkStoveState")
+      }, 3000)
+
+      fetch('http://' + this.state.stoveURL + '/digital/0')
+        .then((response) => response.json())
+        .then((serviceResponseJson) => {
+          thisApp.setState({
+            stoveOn: serviceResponseJson.return_value == 1 ? true : false,
+            stoveSwitch: serviceResponseJson.return_value == 1 ? "on" : "off",
+            stoveVisibleOnNetwork: true,
+          });
+
+          resolve("Successfully retreived stove state: " + JSON.stringify(serviceResponseJson));
+        })
+        .catch((error) => {
+          //Network error, couldn't contact the stove
+          thisApp.setState({
+            stoveVisibleOnNetwork: false,
+          })
+
+          resolve("Could not contact stove for stoveState: " + error);
+        })
+      }.bind(this))
   }
 
-  updateModuleStatus() {
+  updateModuleStatus():Promise<any> {
     let thisApp = this;
 
-    return fetch('http://' + this.state.stoveURL)
-      .then((response) => response.json())
-      .then((serviceResponseJson) => {
-        thisApp.setState({
-          moduleStatus: serviceResponseJson,
-        });
-      })
-      .catch((error) => {
-        //Network error, couldn't contact the stove
-        console.log(error);
+    return new Promise(function(resolve, reject) {
+      setTimeout(function() {
         thisApp.setState({
           stoveVisibleOnNetwork: false,
-          stoveOn: false,
-          stoveSwitch: "off",
-          moduleStatus: {},
         })
-      })
+
+        reject("Network Timeout in updateModuleStatus")
+      }, 3000)
+
+      fetch('http://' + this.state.stoveURL)
+      .then((response) => response.json())
+        .then((serviceResponseJson) => {
+          thisApp.setState({
+            moduleStatus: serviceResponseJson,
+          });
+
+          resolve("Successfully retreived module status: " + JSON.stringify(serviceResponseJson));
+        })
+        .catch((error) => {
+          //Network error, couldn't contact the stove
+
+          thisApp.setState({
+            stoveVisibleOnNetwork: false,
+            stoveOn: false,
+            stoveSwitch: "off",
+            moduleStatus: {},
+          })
+
+          resolve("Could not contact stove for module status: " + error);
+        })
+    }.bind(this))
   }
 
   setServer() {
-    this.checkStoveState();
-    this.updateModuleStatus();
-  }
+    this.checkAllModuleInfo();
+  } 
 
   handleTextInput(event: any) {
     this.setState({
       stoveURL: event,
     })
+  }
+
+  checkAllModuleInfo() {
+    
+    this.checkStoveState().then((response) => {
+      console.log(response);
+      this.setState({lastMessage: response});
+    })
+    .catch((error) => {
+      console.log(error);
+      this.setState({lastMessage: error});
+    });
+    
+    this.updateModuleStatus().then((response) => {
+      console.log(response);
+      this.setState({lastMessage: response});
+    })
+    .catch((error) => {
+      console.log(error);
+      this.setState({lastMessage: error});
+    });
+  }
+
+  handleChangeStoveState(onOrOff: string) {
+
+    this.changeStoveState(onOrOff).then((response) => {
+      console.log(response);
+      this.setState({lastMessage: response});
+    })
+    .catch((error) => {
+      console.log(error);
+      this.setState({lastMessage: error});
+    });
+    
   }
 
   render() {
@@ -138,7 +207,7 @@ export default class App extends React.Component<Props, State> {
             <Picker
               itemStyle={{ height: 75 }}
               selectedValue={this.state.stoveSwitch}
-              onValueChange={(itemValue, itemIndex) => this.changeStoveState(itemValue)}>
+              onValueChange={(itemValue, itemIndex) => this.handleChangeStoveState(itemValue)}>
               <Picker.Item label="On" value="on" />
               <Picker.Item label="Off" value="off" />
             </Picker>
@@ -162,6 +231,7 @@ export default class App extends React.Component<Props, State> {
           <Text>Module connected: {"" + this.state.moduleStatus.connected}</Text>
           <Text>Current server URL:</Text>
           <Text>{this.state.stoveURL}</Text>
+          <Text>Last message: {this.state.lastMessage}</Text>
         </View>
 
       </View>
