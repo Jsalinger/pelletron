@@ -258,20 +258,30 @@ export default class App extends React.Component<Props, State> {
 
           <Grid>
             <Row size={25}>
-              <Col style={{ backgroundColor: '#4659bf', alignItems: 'center' }}>
-                <Row size={1} style={{ alignItems: 'center' }}>
+              <Col style={{ backgroundColor: '#4659bf'}}>
+                <Row size={25} style={{backgroundColor: '#46a9b1', alignItems: 'center', justifyContent: 'center'}}>
                   <Text style={{ fontSize: 30 }}>Temperature</Text>
                 </Row>
-                <Row size={2}>
-                  <Text style={{ fontSize: 50 }}>{this.state.temperature}&deg;</Text>
+                <Row size={75} style={{ alignItems: 'center', justifyContent:'space-around'}} >
+                  <View>
+                    <Icon style={{ fontSize: 50 }} name="ios-thermometer-outline"/>
+                  </View>
+                  <View>
+                    <Text style={{ fontSize: 60 }}>{this.state.temperature}&deg;</Text>
+                  </View>
                 </Row>
               </Col>
-              <Col style={{ backgroundColor: '#5364c3', alignItems: 'center' }}>
-                <Row size={1} style={{ alignItems: 'center' }}>
+              <Col style={{ backgroundColor: '#5364c3'}}>
+                <Row size={25} style={{ backgroundColor: '#46a9b1', alignItems: 'center', justifyContent: 'center'}}>
                   <Text style={{ fontSize: 30 }}>Humidity</Text>
                 </Row>
-                <Row size={2}>
-                  <Text style={{ fontSize: 50 }}>{this.state.humidity}%</Text>
+                <Row size={75} style={{alignItems: 'center', justifyContent: 'space-around'}} >
+                  <View>
+                    <Icon style={{ fontSize: 60 }} name="ios-rainy-outline"/>
+                  </View>
+                  <View>
+                    <Text style={{ fontSize: 60 }}>{this.state.humidity}%</Text>
+                  </View>
                 </Row>
               </Col>
             </Row>
@@ -286,13 +296,19 @@ export default class App extends React.Component<Props, State> {
                 {/* <Text>{this.state.lastNetworkMessage}</Text> */}
               </Col>
             </Row>
-            <Row size={30} style={{ backgroundColor: '#b8bfe6', alignItems: 'center', alignContent: 'center', justifyContent: 'space-around'}}>
+            <Row size={30} style={{ backgroundColor: '#b8bfe6', alignItems: 'center', justifyContent: 'space-around'}}>
                   
               <View>      
-                <Button onPress={() => this.flipStoveState()} color="#841584" title="Flip"><Text>Flip Stove Switch</Text></Button>
+                <Button iconLeft danger rounded onPress={() => this.flipStoveState()} color="#841584" title="Flip">
+                  <Icon ios="ios-power" android="ios-power"/>  
+                  <Text>Flip Stove Switch</Text>
+                </Button>
               </View>
               <View>
-                <Button onPress={() => this.checkAllModuleInfo()} color="#841584" title="Refresh"><Text>Refresh</Text></Button>
+                <Button iconLeft dark rounded onPress={() => this.checkAllModuleInfo()} color="#841584" title="Refresh">
+                  <Icon ios="ios-refresh" android="ios-refresh"/>
+                  <Text>Refresh</Text>
+                </Button>
               </View>
 
             </Row>
