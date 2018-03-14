@@ -21,7 +21,8 @@ import {
   Text,
   Card,
   CardItem,
-  StyleProvider
+  StyleProvider,
+  View
 }
   from "native-base";
 
@@ -37,12 +38,15 @@ type State = {
   stoveVisibleOnNetwork: boolean,
   moduleStatus: any,
   stoveURL: string,
-  lastNetworkMessage: string
+  lastNetworkMessage: string,
+  temperature: string,
+  humidity: string
 }
 
 export default class App extends React.Component<Props, State> {
 
   handleTextInput: Function;
+  // handleStoveClick: Function;
 
   constructor(props: Props) {
     super(props);
@@ -53,10 +57,13 @@ export default class App extends React.Component<Props, State> {
       stoveVisibleOnNetwork: false,
       moduleStatus: {},
       stoveURL: "192.168.0.173",
-      lastNetworkMessage: "",
+      lastNetworkMessage: "None",
+      temperature: "?",
+      humidity: "?"
     }
 
     this.handleTextInput = this.handleTextInput.bind(this);
+    // this.handleStoveClick = this.handleStoveClick.bind(this);
   }
 
   componentDidMount() {
@@ -65,66 +72,78 @@ export default class App extends React.Component<Props, State> {
 
   callStove(path: string): Promise<any> {
 
-    let timeoutMs = 3000;
+    let thisApp = this;
     let fullURL = 'http://' + this.state.stoveURL + '/' + path;
     let completed = false;
     let response = "";
 
     return new Promise((resolve, reject) => {
 
-      setTimeout(function () {
-        if (!completed) {
-          completed = true;
-          response = "Network Timeout in: " + timeoutMs + "ms";
-          this.setState({ lastNetworkMessage: response });
-          reject(response)
-        }
-      }, timeoutMs)
-
       fetch(fullURL)
         .then((response) => response.json())
         .then((serviceResponseJson) => {
-          if (!completed) {
-            completed = true;
-            response = serviceResponseJson;
-            this.setState({ lastNetworkMessage: JSON.stringify(response) });
-            resolve(response);
-          }
+          thisApp.setState({ lastNetworkMessage: JSON.stringify(serviceResponseJson) });
+          resolve(serviceResponseJson);
         })
         .catch((error) => {
-          if (!completed) {
-            completed = true;
-            response = "Error during fetch: " + error;
-            this.setState({ lastNetworkMessage: response });
-            reject(response);
-          }
+          thisApp.setState({ lastNetworkMessage: error });
+          reject(error);
         })
     })
   }
 
-  changeStoveState(onOrOff: string) {
+  // handleStoveClick(event: any) {
+
+  //   //TODO: read the actual event
+  //   console.log("Clicked the button");
+  //   console.log(event);
+
+  //   if (this.state.stoveOn) {
+  //     this.changeStoveState("off");
+  //   }
+  //   else {
+  //     this.changeStoveState("on");
+  //   }
+  // }
+
+  flipStoveState() {
     let thisApp = this;
 
-    let stoveStatus = (onOrOff == "on" ? 1 : 0);
+    // let stoveStatus = (onOrOff == "on" ? 1 : 0);
 
-    this.callStove("digital/0/" + stoveStatus).then((serviceResponseJson) => {
-      thisApp.checkStoveState();
-    })
-      .catch((error) => {
-        thisApp.checkStoveState();
+    // this.callStove("digital/0/" + stoveStatus)
+    //   .then((serviceResponseJson) => {
+    //     console.log("Changed stove state.");
+    //     thisApp.checkStoveState();
+    //   })
+    //   .catch((error) => {
+    //     console.log("Failed to change stove status.");
+    //     thisApp.checkStoveState();
+    //   })
+
+    thisApp.callStove("flip")
+      .then((serviceResponseJson) => {
+        console.log("Changed stove state.");
+        thisApp.checkAllModuleInfo();
       })
+      .catch((error) => {
+        console.log("Failed to change stove status.");
+        thisApp.checkAllModuleInfo();
+      })
+
   }
 
   checkStoveState() {
     let thisApp = this;
 
-    this.callStove("digital/0").then((serviceResponseJson) => {
-      thisApp.setState({
-        stoveOn: serviceResponseJson.return_value == 1 ? true : false,
-        stoveSwitch: serviceResponseJson.return_value == 1 ? "on" : "off",
-        stoveVisibleOnNetwork: true,
-      });
-    })
+    this.callStove("digital/0")
+      .then((serviceResponseJson) => {
+        thisApp.setState({
+          stoveOn: serviceResponseJson.return_value == 1 ? true : false,
+          stoveSwitch: serviceResponseJson.return_value == 1 ? "on" : "off",
+          stoveVisibleOnNetwork: true,
+        });
+      })
       .catch((error) => {
         thisApp.setState({
           stoveVisibleOnNetwork: false,
@@ -135,17 +154,68 @@ export default class App extends React.Component<Props, State> {
   updateModuleStatus() {
     let thisApp = this;
 
-    this.callStove("").then((serviceResponseJson) => {
-      thisApp.setState({
-        moduleStatus: serviceResponseJson,
-      });
-    })
+    this.callStove("")
+      .then((serviceResponseJson) => {
+        thisApp.setState({
+          moduleStatus: serviceResponseJson,
+        });
+      })
       .catch((error) => {
         thisApp.setState({
           stoveVisibleOnNetwork: false,
           stoveOn: false,
           stoveSwitch: "off",
           moduleStatus: {},
+        })
+      })
+  }
+
+  checkStoveTemperature() {
+    let thisApp = this;
+
+    this.callStove("temperature")
+      .then((serviceResponseJson) => {
+        let temp = serviceResponseJson.return_value;
+
+        if (temp < 200) {
+          thisApp.setState({
+            temperature: temp,
+          });
+        }
+        else {
+          thisApp.setState({
+            temperature: "-"
+          })
+        }
+      })
+      .catch((error) => {
+        thisApp.setState({
+          temperature: "?"
+        })
+      })
+  }
+
+  checkStoveHumidity() {
+    let thisApp = this;
+
+    this.callStove("humidity")
+      .then((serviceResponseJson) => {
+        let humidity = serviceResponseJson.return_value;
+
+        if (humidity < 200) {
+          thisApp.setState({
+            humidity: humidity,
+          });
+        }
+        else {
+          thisApp.setState({
+            humidity: "-",
+          });
+        }
+      })
+      .catch((error) => {
+        thisApp.setState({
+          temperature: "?"
         })
       })
   }
@@ -159,9 +229,18 @@ export default class App extends React.Component<Props, State> {
   checkAllModuleInfo() {
     this.checkStoveState();
     this.updateModuleStatus();
+    this.checkStoveTemperature();
+    this.checkStoveHumidity();
   }
 
   render() {
+
+    let stoveStatusMessage = "Stove status unknown";
+    this.state.stoveOn ? stoveStatusMessage = "Stove is ON" : stoveStatusMessage = "Stove is OFF";
+
+    let stoveIconColor = "#fff";
+    this.state.stoveOn ? stoveIconColor = 'red' : stoveIconColor = "#fff";
+
     return (
       <StyleProvider style={getTheme()}>
         <Container>
@@ -177,44 +256,47 @@ export default class App extends React.Component<Props, State> {
             <Right />
           </Header>
 
-            <Grid>
-              <Row size={25}>
-                <Col style={{ backgroundColor: '#4659bf', alignItems: 'center' }}>
-                  <Row size={1} style={{ alignItems: 'center' }}>
-                    <Text style={{ fontSize: 30}}>Temperature</Text>
-                  </Row>
-                  <Row size={2}>
-                    <Text style={{ fontSize: 50 }}>72&deg;</Text>
-                  </Row>
-                </Col>
-                <Col style={{ backgroundColor: '#5364c3', alignItems: 'center' }}>
-                  <Row size={1} style={{ alignItems: 'center' }}>
-                    <Text style={{ fontSize: 30 }}>Humidity</Text>
-                  </Row>
-                  <Row size={2}>
-                    <Text style={{ fontSize: 50 }}>33%</Text>
-                  </Row>
-                </Col>
-              </Row>
-              <Row size={25}>
-                <Col style={{ backgroundColor: '#5f6fc7', justifyContent: 'center', alignItems: 'center' }}>
-                  <Icon ios='ios-menu' android="ios-flame" style={{fontSize: 100, color: '#d11b1b'}}/>
-                </Col>
-              </Row>
-              <Row size={20}>
-                <Col style={{ backgroundColor: '#36469c', justifyContent: 'center', alignItems: 'center' }}>
-                  <Text style={{ fontSize: 35, color: 'white' }}>Stove Online</Text>
-                </Col>
-              </Row>
-              <Row size={30}>
-                <Col style={{ backgroundColor: '#929dd9', justifyContent: 'center', alignItems: 'center' }}>
-                  <Text style={{ fontSize: 70 }}>ON</Text>
-                </Col>
-                <Col style={{ backgroundColor: '#b8bfe6', justifyContent: 'center', alignItems: 'center' }}>
-                  <Text style={{ fontSize: 70 }}>OFF</Text>
-                </Col>
-              </Row>
-            </Grid>
+          <Grid>
+            <Row size={25}>
+              <Col style={{ backgroundColor: '#4659bf', alignItems: 'center' }}>
+                <Row size={1} style={{ alignItems: 'center' }}>
+                  <Text style={{ fontSize: 30 }}>Temperature</Text>
+                </Row>
+                <Row size={2}>
+                  <Text style={{ fontSize: 50 }}>{this.state.temperature}&deg;</Text>
+                </Row>
+              </Col>
+              <Col style={{ backgroundColor: '#5364c3', alignItems: 'center' }}>
+                <Row size={1} style={{ alignItems: 'center' }}>
+                  <Text style={{ fontSize: 30 }}>Humidity</Text>
+                </Row>
+                <Row size={2}>
+                  <Text style={{ fontSize: 50 }}>{this.state.humidity}%</Text>
+                </Row>
+              </Col>
+            </Row>
+            <Row size={25}>
+              <Col style={{ backgroundColor: '#5f6fc7', justifyContent: 'center', alignItems: 'center' }}>
+                <Icon ios='ios-flame' android="ios-flame" style={{ fontSize: 100, color: stoveIconColor }} />
+              </Col>
+            </Row>
+            <Row size={20}>
+              <Col style={{ backgroundColor: '#36469c', justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ fontSize: 35, color: stoveIconColor }}>{stoveStatusMessage}</Text>
+                {/* <Text>{this.state.lastNetworkMessage}</Text> */}
+              </Col>
+            </Row>
+            <Row size={30} style={{ backgroundColor: '#b8bfe6', alignItems: 'center', alignContent: 'center', justifyContent: 'space-around'}}>
+                  
+              <View>      
+                <Button onPress={() => this.flipStoveState()} color="#841584" title="Flip"><Text>Flip Stove Switch</Text></Button>
+              </View>
+              <View>
+                <Button onPress={() => this.checkAllModuleInfo()} color="#841584" title="Refresh"><Text>Refresh</Text></Button>
+              </View>
+
+            </Row>
+          </Grid>
 
 
           {/*
