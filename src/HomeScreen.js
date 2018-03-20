@@ -1,3 +1,5 @@
+// @flow
+
 import React from 'react';
 
 import {
@@ -22,96 +24,92 @@ import {
     CardItem,
     StyleProvider,
     View
-  }
-from "native-base";
+}
+    from "native-base";
 
 type Props = {
-
+    navigation: any,
 }
 
 type State = {
-  stoveOn: boolean,
-  stoveSwitch: any,
-  stoveVisibleOnNetwork: boolean,
-  moduleStatus: any,
-  stoveURL: string,
-  lastNetworkMessage: string,
-  temperature: string,
-  humidity: string
+    stoveOn: boolean,
+    stoveSwitch: any,
+    stoveVisibleOnNetwork: boolean,
+    moduleStatus: any,
+    stoveURL: string,
+    lastNetworkMessage: string,
+    temperature: string,
+    humidity: string
 }
 
 export default class HomeScreen extends React.Component<Props, State> {
 
+    handleTextInput: Function;
+    // handleStoveClick: Function;
 
-    
-
-    
-      handleTextInput: Function;
-      // handleStoveClick: Function;
-    
-      constructor(props: Props) {
+    constructor(props: Props) {
         super(props);
-    
+
         this.state = {
-          stoveOn: false,
-          stoveSwitch: "off",
-          stoveVisibleOnNetwork: false,
-          moduleStatus: {},
-          stoveURL: "192.168.0.173",
-          lastNetworkMessage: "None",
-          temperature: "?",
-          humidity: "?"
+            stoveOn: false,
+            stoveSwitch: "off",
+            stoveVisibleOnNetwork: false,
+            moduleStatus: {},
+            stoveURL: "192.168.0.173",
+            lastNetworkMessage: "None",
+            temperature: "?",
+            humidity: "?"
         }
-    
+
         this.handleTextInput = this.handleTextInput.bind(this);
         // this.handleStoveClick = this.handleStoveClick.bind(this);
-      }
-    
-      componentDidMount() {
+    }
+
+    componentDidMount() {
         this.checkAllModuleInfo();
-      }
-    
-      callStove(path: string): Promise<any> {
-    
+    }
+
+    callStove(path: string): Promise<any> {
+
         let thisApp = this;
         let fullURL = 'http://' + this.state.stoveURL + '/' + path;
         let completed = false;
         let response = "";
-    
+
         return new Promise((resolve, reject) => {
-    
-          fetch(fullURL)
-            .then((response) => response.json())
-            .then((serviceResponseJson) => {
-              thisApp.setState({ lastNetworkMessage: JSON.stringify(serviceResponseJson) });
-              resolve(serviceResponseJson);
-            })
-            .catch((error) => {
-              thisApp.setState({ lastNetworkMessage: error });
-              reject(error);
-            })
+
+            fetch(fullURL)
+                .then((response) => response.json())
+                .then((serviceResponseJson) => {
+                    thisApp.setState({ lastNetworkMessage: JSON.stringify(serviceResponseJson) });
+                    resolve(serviceResponseJson);
+                })
+                .catch((error) => {
+                    thisApp.setState({ lastNetworkMessage: error });
+                    reject(error);
+                })
         })
-      }
-    
-      // handleStoveClick(event: any) {
-    
-      //   //TODO: read the actual event
-      //   console.log("Clicked the button");
-      //   console.log(event);
-    
-      //   if (this.state.stoveOn) {
-      //     this.changeStoveState("off");
-      //   }
-      //   else {
-      //     this.changeStoveState("on");
-      //   }
-      // }
-    
-      flipStoveState() {
+    }
+
+    // handleStoveClick(event: any) {
+
+    //   //TODO: read the actual event
+    //   console.log("Clicked the button");
+    //   console.log(event);
+
+    //   if (this.state.stoveOn) {
+    //     this.changeStoveState("off");
+    //   }
+    //   else {
+    //     this.changeStoveState("on");
+    //   }
+    // }
+
+    flipStoveState() {
         let thisApp = this;
-    
+
         // let stoveStatus = (onOrOff == "on" ? 1 : 0);
-    
+
         // this.callStove("digital/0/" + stoveStatus)
         //   .then((serviceResponseJson) => {
         //     console.log("Changed stove state.");
@@ -121,201 +119,201 @@ export default class HomeScreen extends React.Component<Props, State> {
         //     console.log("Failed to change stove status.");
         //     thisApp.checkStoveState();
         //   })
-    
+
         thisApp.callStove("flip")
-          .then((serviceResponseJson) => {
-            console.log("Changed stove state.");
-            thisApp.checkAllModuleInfo();
-          })
-          .catch((error) => {
-            console.log("Failed to change stove status.");
-            thisApp.checkAllModuleInfo();
-          })
-    
-      }
-    
-      checkStoveState() {
+            .then((serviceResponseJson) => {
+                console.log("Changed stove state.");
+                thisApp.checkAllModuleInfo();
+            })
+            .catch((error) => {
+                console.log("Failed to change stove status.");
+                thisApp.checkAllModuleInfo();
+            })
+
+    }
+
+    checkStoveState() {
         let thisApp = this;
-    
+
         this.callStove("digital/0")
-          .then((serviceResponseJson) => {
-            thisApp.setState({
-              stoveOn: serviceResponseJson.return_value == 1 ? true : false,
-              stoveSwitch: serviceResponseJson.return_value == 1 ? "on" : "off",
-              stoveVisibleOnNetwork: true,
-            });
-          })
-          .catch((error) => {
-            thisApp.setState({
-              stoveVisibleOnNetwork: false,
+            .then((serviceResponseJson) => {
+                thisApp.setState({
+                    stoveOn: serviceResponseJson.return_value == 1 ? true : false,
+                    stoveSwitch: serviceResponseJson.return_value == 1 ? "on" : "off",
+                    stoveVisibleOnNetwork: true,
+                });
             })
-          })
-      }
-    
-      updateModuleStatus() {
+            .catch((error) => {
+                thisApp.setState({
+                    stoveVisibleOnNetwork: false,
+                })
+            })
+    }
+
+    updateModuleStatus() {
         let thisApp = this;
-    
+
         this.callStove("")
-          .then((serviceResponseJson) => {
-            thisApp.setState({
-              moduleStatus: serviceResponseJson,
-            });
-          })
-          .catch((error) => {
-            thisApp.setState({
-              stoveVisibleOnNetwork: false,
-              stoveOn: false,
-              stoveSwitch: "off",
-              moduleStatus: {},
+            .then((serviceResponseJson) => {
+                thisApp.setState({
+                    moduleStatus: serviceResponseJson,
+                });
             })
-          })
-      }
-    
-      checkStoveTemperature() {
+            .catch((error) => {
+                thisApp.setState({
+                    stoveVisibleOnNetwork: false,
+                    stoveOn: false,
+                    stoveSwitch: "off",
+                    moduleStatus: {},
+                })
+            })
+    }
+
+    checkStoveTemperature() {
         let thisApp = this;
-    
+
         this.callStove("temperature")
-          .then((serviceResponseJson) => {
-            let temp = serviceResponseJson.return_value;
-    
-            if (temp < 200) {
-              thisApp.setState({
-                temperature: temp,
-              });
-            }
-            else {
-              thisApp.setState({
-                temperature: "-"
-              })
-            }
-          })
-          .catch((error) => {
-            thisApp.setState({
-              temperature: "?"
+            .then((serviceResponseJson) => {
+                let temp = serviceResponseJson.return_value;
+
+                if (temp < 200) {
+                    thisApp.setState({
+                        temperature: temp,
+                    });
+                }
+                else {
+                    thisApp.setState({
+                        temperature: "-"
+                    })
+                }
             })
-          })
-      }
-    
-      checkStoveHumidity() {
+            .catch((error) => {
+                thisApp.setState({
+                    temperature: "?"
+                })
+            })
+    }
+
+    checkStoveHumidity() {
         let thisApp = this;
-    
+
         this.callStove("humidity")
-          .then((serviceResponseJson) => {
-            let humidity = serviceResponseJson.return_value;
-    
-            if (humidity < 200) {
-              thisApp.setState({
-                humidity: humidity,
-              });
-            }
-            else {
-              thisApp.setState({
-                humidity: "-",
-              });
-            }
-          })
-          .catch((error) => {
-            thisApp.setState({
-              temperature: "?"
+            .then((serviceResponseJson) => {
+                let humidity = serviceResponseJson.return_value;
+
+                if (humidity < 200) {
+                    thisApp.setState({
+                        humidity: humidity,
+                    });
+                }
+                else {
+                    thisApp.setState({
+                        humidity: "-",
+                    });
+                }
             })
-          })
-      }
-    
-      handleTextInput(event: any) {
+            .catch((error) => {
+                thisApp.setState({
+                    temperature: "?"
+                })
+            })
+    }
+
+    handleTextInput(event: any) {
         this.setState({
-          stoveURL: event,
+            stoveURL: event,
         })
-      }
-    
-      checkAllModuleInfo() {
+    }
+
+    checkAllModuleInfo() {
         this.checkStoveState();
         this.updateModuleStatus();
         this.checkStoveTemperature();
         this.checkStoveHumidity();
-      }
+    }
 
     render() {
 
         let stoveStatusMessage = "Stove status unknown";
         this.state.stoveOn ? stoveStatusMessage = "Stove is ON" : stoveStatusMessage = "Stove is OFF";
-    
+
         let stoveIconColor = "#fff";
         this.state.stoveOn ? stoveIconColor = 'red' : stoveIconColor = "#fff";
 
         return (
-        <Container>
-          <Header>
-            <Left>
-              <Button transparent>
-                <Icon name="menu" />
-              </Button>
-            </Left>
-            <Body>
-              <Title>Pelletron</Title>
-            </Body>
-            <Right />
-          </Header>
+            <Container>
+                <Header>
+                    <Left>
+                        <Button transparent onPress={() => this.props.navigation.navigate("DrawerOpen")}>
+                            <Icon name="menu" />
+                        </Button>
+                    </Left>
+                    <Body>
+                        <Title>Pelletron</Title>
+                    </Body>
+                    <Right />
+                </Header>
 
-          <Grid>
-            <Row size={20}>
-              <Col style={{ backgroundColor: 'black'}}>
-                <Row size={33} style={{backgroundColor: 'black', alignItems: 'center', justifyContent: 'center'}}>
-                  <Text style={{ fontSize: 30, color: 'white' }}>Temp</Text>
-                </Row>
-                <Row size={66} style={{ alignItems: 'center', justifyContent:'space-around'}} >
-                  <View size={25}>
-                    <Icon style={{ fontSize: 45, color: 'white'}} name="ios-thermometer-outline"/>
-                  </View>
-                  <View size={75}>
-                    <Text style={{ fontSize: 60, color: 'white' }}>{this.state.temperature}&deg;</Text>
-                  </View>
-                </Row>
-              </Col>
-              <Col style={{ backgroundColor: 'white'}}>
-                <Row size={33} style={{ backgroundColor: 'white', alignItems: 'center', justifyContent: 'center'}}>
-                  <Text style={{ fontSize: 30, color: 'black' }}>Humidity</Text>
-                </Row>
-                <Row size={66} style={{alignItems: 'center', justifyContent: 'space-around'}} >
-                  <View size={25}>
-                    <Icon style={{ fontSize: 45 }} name="ios-rainy-outline"/>
-                  </View>
-                  <View size={75}>
-                    <Text style={{ fontSize: 60 }}>{this.state.humidity}%</Text>
-                  </View>
-                </Row>
-              </Col>
-            </Row>
-            <Row size={20}>
-              <Col style={{ backgroundColor: 'gray', justifyContent: 'center', alignItems: 'center' }}>
-                <Icon ios='ios-flame' android="ios-flame" style={{ fontSize: 100, color: stoveIconColor }} />
-              </Col>
-            </Row>
-            <Row size={5}>
-              <Col style={{ backgroundColor: 'gray', justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{ fontSize: 35, color: stoveIconColor }}>{stoveStatusMessage}</Text>
-                {/* <Text>{this.state.lastNetworkMessage}</Text> */}
-              </Col>
-            </Row>
-            <Row size={15} style={{ backgroundColor: 'gray', alignItems: 'center', justifyContent: 'space-around'}}>
-                  
-              <View>      
-                <Button iconLeft danger rounded onPress={() => this.flipStoveState()} color="#841584" title="Flip">
-                  <Icon ios="ios-power" android="ios-power"/>  
-                  <Text>Flip Stove Switch</Text>
-                </Button>
-              </View>
-              <View>
-                <Button iconLeft dark rounded onPress={() => this.checkAllModuleInfo()} color="#841584" title="Refresh">
-                  <Icon ios="ios-refresh" android="ios-refresh"/>
-                  <Text>Refresh</Text>
-                </Button>
-              </View>
+                <Grid>
+                    <Row size={20}>
+                        <Col style={{ backgroundColor: 'black' }}>
+                            <Row size={33} style={{ backgroundColor: 'black', alignItems: 'center', justifyContent: 'center' }}>
+                                <Text style={{ fontSize: 30, color: 'white' }}>Temp</Text>
+                            </Row>
+                            <Row size={66} style={{ alignItems: 'center', justifyContent: 'space-around' }} >
+                                <View size={25}>
+                                    <Icon style={{ fontSize: 45, color: 'white' }} name="ios-thermometer-outline" />
+                                </View>
+                                <View size={75}>
+                                    <Text style={{ fontSize: 60, color: 'white' }}>{this.state.temperature}&deg;</Text>
+                                </View>
+                            </Row>
+                        </Col>
+                        <Col style={{ backgroundColor: 'white' }}>
+                            <Row size={33} style={{ backgroundColor: 'white', alignItems: 'center', justifyContent: 'center' }}>
+                                <Text style={{ fontSize: 30, color: 'black' }}>Humidity</Text>
+                            </Row>
+                            <Row size={66} style={{ alignItems: 'center', justifyContent: 'space-around' }} >
+                                <View size={25}>
+                                    <Icon style={{ fontSize: 45 }} name="ios-rainy-outline" />
+                                </View>
+                                <View size={75}>
+                                    <Text style={{ fontSize: 60 }}>{this.state.humidity}%</Text>
+                                </View>
+                            </Row>
+                        </Col>
+                    </Row>
+                    <Row size={20}>
+                        <Col style={{ backgroundColor: 'gray', justifyContent: 'center', alignItems: 'center' }}>
+                            <Icon ios='ios-flame' android="ios-flame" style={{ fontSize: 100, color: stoveIconColor }} />
+                        </Col>
+                    </Row>
+                    <Row size={5}>
+                        <Col style={{ backgroundColor: 'gray', justifyContent: 'center', alignItems: 'center' }}>
+                            <Text style={{ fontSize: 35, color: stoveIconColor }}>{stoveStatusMessage}</Text>
+                            {/* <Text>{this.state.lastNetworkMessage}</Text> */}
+                        </Col>
+                    </Row>
+                    <Row size={15} style={{ backgroundColor: 'gray', alignItems: 'center', justifyContent: 'space-around' }}>
 
-            </Row>
-          </Grid>
+                        <View>
+                            <Button iconLeft danger rounded onPress={() => this.flipStoveState()} color="#841584" title="Flip">
+                                <Icon ios="ios-power" android="ios-power" />
+                                <Text>Flip Stove Switch</Text>
+                            </Button>
+                        </View>
+                        <View>
+                            <Button iconLeft dark rounded onPress={() => this.checkAllModuleInfo()} color="#841584" title="Refresh">
+                                <Icon ios="ios-refresh" android="ios-refresh" />
+                                <Text>Refresh</Text>
+                            </Button>
+                        </View>
+
+                    </Row>
+                </Grid>
 
 
-          {/*
+                {/*
         <View>
           <Text>Pelletron - Pellet Stove Control</Text>
           <View>
@@ -370,7 +368,7 @@ export default class HomeScreen extends React.Component<Props, State> {
         </View>
 */}
 
-        </Container>
+            </Container>
         )
     }
 
