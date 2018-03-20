@@ -3,20 +3,7 @@
 import React from 'react';
 import getTheme from './native-base-theme/components';
 import { StyleProvider } from "native-base";
-import HomeScreen from './src/HomeScreen.js'
-import Settings from "./src/Settings.js";
-import SideBar from "./src/SideBar.js";
-import { DrawerNavigator } from "react-navigation";
-
-const HomeScreenRouter = DrawerNavigator(
-  {
-    Home: { screen: HomeScreen },
-    Settings: { screen: Settings }
-  },
-  {
-    contentComponent: props => <SideBar {...props} />
-  }
-);
+import HomeScreenRouter from './src/HomeScreenRouter.js';
 
 type Props = {
 
@@ -32,7 +19,7 @@ export default class App extends React.Component<Props, State> {
 
     return (
       <StyleProvider style={getTheme()}>
-        <HomeScreen />
+        <HomeScreenRouter />
       </StyleProvider>
     );
   }
