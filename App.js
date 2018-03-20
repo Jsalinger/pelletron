@@ -257,7 +257,7 @@ export default class App extends React.Component<Props, State> {
           </Header>
 
           <Grid>
-            <Row size={25}>
+            <Row size={20}>
               <Col style={{ backgroundColor: 'black'}}>
                 <Row size={33} style={{backgroundColor: 'black', alignItems: 'center', justifyContent: 'center'}}>
                   <Text style={{ fontSize: 30, color: 'white' }}>Temp</Text>
