@@ -62,7 +62,7 @@ export default class HomeScreen extends React.Component<Props, State> {
         }
 
         this.handleTextInput = this.handleTextInput.bind(this);
-        // this.handleStoveClick = this.handleStoveClick.bind(this);
+        // this.handleStoveClick = this.handleStoveClick.bind(this); 
     }
 
     componentDidMount() {
