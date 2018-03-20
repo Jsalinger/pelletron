@@ -258,45 +258,45 @@ export default class App extends React.Component<Props, State> {
 
           <Grid>
             <Row size={25}>
-              <Col style={{ backgroundColor: '#4659bf'}}>
-                <Row size={25} style={{backgroundColor: '#46a9b1', alignItems: 'center', justifyContent: 'center'}}>
-                  <Text style={{ fontSize: 30 }}>Temperature</Text>
+              <Col style={{ backgroundColor: 'black'}}>
+                <Row size={33} style={{backgroundColor: 'black', alignItems: 'center', justifyContent: 'center'}}>
+                  <Text style={{ fontSize: 30, color: 'white' }}>Temp</Text>
                 </Row>
-                <Row size={75} style={{ alignItems: 'center', justifyContent:'space-around'}} >
-                  <View>
-                    <Icon style={{ fontSize: 50 }} name="ios-thermometer-outline"/>
+                <Row size={66} style={{ alignItems: 'center', justifyContent:'space-around'}} >
+                  <View size={25}>
+                    <Icon style={{ fontSize: 45, color: 'white'}} name="ios-thermometer-outline"/>
                   </View>
-                  <View>
-                    <Text style={{ fontSize: 60 }}>{this.state.temperature}&deg;</Text>
+                  <View size={75}>
+                    <Text style={{ fontSize: 60, color: 'white' }}>{this.state.temperature}&deg;</Text>
                   </View>
                 </Row>
               </Col>
-              <Col style={{ backgroundColor: '#5364c3'}}>
-                <Row size={25} style={{ backgroundColor: '#46a9b1', alignItems: 'center', justifyContent: 'center'}}>
-                  <Text style={{ fontSize: 30 }}>Humidity</Text>
+              <Col style={{ backgroundColor: 'white'}}>
+                <Row size={33} style={{ backgroundColor: 'white', alignItems: 'center', justifyContent: 'center'}}>
+                  <Text style={{ fontSize: 30, color: 'black' }}>Humidity</Text>
                 </Row>
-                <Row size={75} style={{alignItems: 'center', justifyContent: 'space-around'}} >
-                  <View>
-                    <Icon style={{ fontSize: 60 }} name="ios-rainy-outline"/>
+                <Row size={66} style={{alignItems: 'center', justifyContent: 'space-around'}} >
+                  <View size={25}>
+                    <Icon style={{ fontSize: 45 }} name="ios-rainy-outline"/>
                   </View>
-                  <View>
+                  <View size={75}>
                     <Text style={{ fontSize: 60 }}>{this.state.humidity}%</Text>
                   </View>
                 </Row>
               </Col>
             </Row>
-            <Row size={25}>
-              <Col style={{ backgroundColor: '#5f6fc7', justifyContent: 'center', alignItems: 'center' }}>
+            <Row size={20}>
+              <Col style={{ backgroundColor: 'gray', justifyContent: 'center', alignItems: 'center' }}>
                 <Icon ios='ios-flame' android="ios-flame" style={{ fontSize: 100, color: stoveIconColor }} />
               </Col>
             </Row>
-            <Row size={20}>
-              <Col style={{ backgroundColor: '#36469c', justifyContent: 'center', alignItems: 'center' }}>
+            <Row size={5}>
+              <Col style={{ backgroundColor: 'gray', justifyContent: 'center', alignItems: 'center' }}>
                 <Text style={{ fontSize: 35, color: stoveIconColor }}>{stoveStatusMessage}</Text>
                 {/* <Text>{this.state.lastNetworkMessage}</Text> */}
               </Col>
             </Row>
-            <Row size={30} style={{ backgroundColor: '#b8bfe6', alignItems: 'center', justifyContent: 'space-around'}}>
+            <Row size={15} style={{ backgroundColor: 'gray', alignItems: 'center', justifyContent: 'space-around'}}>
                   
               <View>      
                 <Button iconLeft danger rounded onPress={() => this.flipStoveState()} color="#841584" title="Flip">
