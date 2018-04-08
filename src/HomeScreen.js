@@ -95,7 +95,7 @@ export default class HomeScreen extends React.Component<Props, State> {
     componentDidMount() {
         AsyncStorage.getItem('serverURL')
             .then((value) => {
-                
+
                 let message;
                 if (value == null || value == "") {
                     message = "Please go to the settings and set a valid stove URL";
@@ -106,7 +106,7 @@ export default class HomeScreen extends React.Component<Props, State> {
 
                 this.setState({ stoveURL: value, statusMessage: message })
                 this.checkAllModuleInfo();
-        })
+            })
 
         this.checkAllModuleInfo();
 
@@ -129,7 +129,7 @@ export default class HomeScreen extends React.Component<Props, State> {
         let response = "";
 
         return new Promise((resolve, reject) => {
-            
+
             if (this.state.stoveURL != null && this.state.stoveURL != "" && ValidURL.isUri(fullURL)) {
                 try {
                     fetch(fullURL)
@@ -386,13 +386,12 @@ export default class HomeScreen extends React.Component<Props, State> {
                             <Text>Last updated: {this.state.lastUpdated.toLocaleString()}</Text>
                         </View>
                     </Row>
-                    {this.state.statusMessage != "" &&
-                        <Row size={5} style={{ alignItems: 'center', justifyContent: 'center' }}>
-                            <View>
-                                <Text style={{ color: 'red' }}>{this.state.statusMessage}</Text>
-                            </View>
-                        </Row>
-                    }
+                    <Row size={5} style={{ alignItems: 'center', justifyContent: 'center' }}>
+                        <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                            <Text style={{ paddingLeft: 50, paddingRight: 50, color: 'red' }}>{this.state.statusMessage}</Text>
+                        </View>
+                    </Row>
+
                 </Grid>
 
 
