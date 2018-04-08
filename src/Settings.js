@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { AsyncStorage } from 'react-native';
-import { Container, Content, Text, List, ListItem, View, Icon, Header, Left, Button, Body, Right, Title, Input, Item } from "native-base";
+import { Row, Col, Grid, Container, Content, Text, List, ListItem, View, Icon, Header, Left, Button, Body, Right, Title, Input, Item } from "native-base";
 
 type Props = {
 
@@ -67,18 +67,31 @@ export default class Settings extends React.Component<Props, State> {
                     </Body>
                     <Right />
                 </Header>
-                <View>
-                    <Text>Change your stove URL below, if needed.</Text>
-                    <Text>Current stove URL value: {this.state.storedServerValue}</Text>
-                </View>
                 <Content>
-                    <Item regular>
-                        <Input
-                            placeholder='192.168.0.173 (for example)'
-                            value={this.state.inputServerValue}
-                            onChangeText={(text) => this.changeServerValue(text)}
-                        />
-                    </Item>
+                    <Grid>
+                        <Row size={25} style={{ backgroundColor: 'black', alignItems: 'center', justifyContent: 'center' }}>
+                            <Text style={{ margin: 20, fontSize: 30, color: 'white' }}>Stove Server Settings</Text>
+                        </Row>
+                        <Row size={25} style={{ backgroundColor: 'white', alignItems: 'center', justifyContent: 'center' }}>
+                            <Text style={{ margin: 10, fontSize: 20, color: 'red' }}>Current value: {this.state.storedServerValue}</Text>
+                        </Row>
+                        <Row size={25} style={{ margin: 10, backgroundColor: 'white', alignItems: 'center', justifyContent: 'center' }}>
+                            <Col size={10} />
+                            <Col size={80}>
+                                <Item regular>
+                                    <Input
+                                        placeholder='192.168.0.173 (for example)'
+                                        value={this.state.inputServerValue}
+                                        onChangeText={(text) => this.changeServerValue(text)}
+                                    />
+                                </Item>
+                            </Col>
+                            <Col size={10} />
+                        </Row>
+                        <Row size={25} style={{ backgroundColor: 'green', alignItems: 'center', justifyContent: 'center' }}>
+                            <Text style={{ margin: 20, fontSize: 15, color: 'white' }}>If you change the value, just go back to save it.</Text>
+                        </Row>
+                    </Grid>
                 </Content>
 
 
