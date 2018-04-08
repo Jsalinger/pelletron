@@ -2,6 +2,10 @@
 
 import React from 'react';
 
+import { AsyncStorage } from 'react-native';
+
+import ValidURL from 'valid-url';
+
 import {
     H1,
     H2,
@@ -39,8 +43,14 @@ type State = {
     stoveURL: string,
     lastNetworkMessage: string,
     temperature: string,
-    humidity: string
+    lastGoodTemperature: string,
+    humidity: string,
+    lastGoodHumidity: string,
+    lastUpdated: Date,
+    stoveUpdater: any,
+    statusMessage: string
 }
+
 
 export default class HomeScreen extends React.Component<Props, State> {
 
@@ -55,18 +65,60 @@ export default class HomeScreen extends React.Component<Props, State> {
             stoveSwitch: "off",
             stoveVisibleOnNetwork: false,
             moduleStatus: {},
-            stoveURL: "192.168.0.173",
+            stoveURL: "",
             lastNetworkMessage: "None",
             temperature: "?",
-            humidity: "?"
+            lastGoodTemperature: "-",
+            humidity: "?",
+            lastGoodHumidity: "-",
+            lastUpdated: new Date(),
+            stoveUpdater: null,
+            statusMessage: "",
         }
 
         this.handleTextInput = this.handleTextInput.bind(this);
         // this.handleStoveClick = this.handleStoveClick.bind(this); 
     }
 
+    stoveStateIsValid() {
+        let temperature = this.state.temperature;
+        let humidity = this.state.humidity;
+
+        if (temperature != '?' && temperature != "-" && humidity != '?' && humidity != '-') {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
     componentDidMount() {
+        AsyncStorage.getItem('serverURL')
+            .then((value) => {
+                
+                let message;
+                if (value == null || value == "") {
+                    message = "Please go to the settings and set a valid stove URL";
+                }
+                else {
+                    message = "Using stove URL: " + value;
+                }
+
+                this.setState({ stoveURL: value, statusMessage: message })
+                this.checkAllModuleInfo();
+        })
+
         this.checkAllModuleInfo();
+
+        var interval = setInterval(() => {
+            this.checkAllModuleInfo();
+        }, 5000);
+
+        this.setState({ stoveUpdater: interval });
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.state.stoveUpdater);
     }
 
     callStove(path: string): Promise<any> {
@@ -77,18 +129,32 @@ export default class HomeScreen extends React.Component<Props, State> {
         let response = "";
 
         return new Promise((resolve, reject) => {
-
-            fetch(fullURL)
-                .then((response) => response.json())
-                .then((serviceResponseJson) => {
-                    thisApp.setState({ lastNetworkMessage: JSON.stringify(serviceResponseJson) });
-                    resolve(serviceResponseJson);
-                })
-                .catch((error) => {
-                    thisApp.setState({ lastNetworkMessage: error });
+            
+            if (this.state.stoveURL != null && this.state.stoveURL != "" && ValidURL.isUri(fullURL)) {
+                try {
+                    fetch(fullURL)
+                        .then((response) => response.json())
+                        .then((serviceResponseJson) => {
+                            thisApp.setState({ lastNetworkMessage: JSON.stringify(serviceResponseJson) });
+                            resolve(serviceResponseJson);
+                        })
+                        .catch((error) => {
+                            thisApp.setState({ lastNetworkMessage: error });
+                            reject(error);
+                        })
+                }
+                catch (error) {
+                    thisApp.setState({ statusMessage: "The stove URL: " + fullURL + " was invalid, fix in settings." });
+                    console.error(error);
                     reject(error);
-                })
+                }
+            }
+            else {
+                thisApp.setState({ statusMessage: "The stove URL: " + fullURL + " was invalid, fix in settings." });
+                reject("Problen with URL.");
+            }
         })
+
     }
 
     // handleStoveClick(event: any) {
@@ -179,11 +245,12 @@ export default class HomeScreen extends React.Component<Props, State> {
                 if (temp < 200) {
                     thisApp.setState({
                         temperature: temp,
+                        lastGoodTemperature: temp,
                     });
                 }
                 else {
                     thisApp.setState({
-                        temperature: "-"
+                        temperature: this.state.lastGoodTemperature
                     })
                 }
             })
@@ -204,12 +271,15 @@ export default class HomeScreen extends React.Component<Props, State> {
                 if (humidity < 200) {
                     thisApp.setState({
                         humidity: humidity,
+                        lastGoodHumidity: humidity,
                     });
                 }
                 else {
-                    thisApp.setState({
-                        humidity: "-",
-                    });
+                    if (this.state.humidity != '-') {
+                        thisApp.setState({
+                            humidity: this.state.lastGoodHumidity,
+                        });
+                    }
                 }
             })
             .catch((error) => {
@@ -230,6 +300,8 @@ export default class HomeScreen extends React.Component<Props, State> {
         this.updateModuleStatus();
         this.checkStoveTemperature();
         this.checkStoveHumidity();
+
+        this.setState({ lastUpdated: new Date() });
     }
 
     render() {
@@ -308,8 +380,19 @@ export default class HomeScreen extends React.Component<Props, State> {
                                 <Text>Refresh</Text>
                             </Button>
                         </View>
-
                     </Row>
+                    <Row size={5} style={{ alignItems: 'center', justifyContent: 'center' }}>
+                        <View>
+                            <Text>Last updated: {this.state.lastUpdated.toLocaleString()}</Text>
+                        </View>
+                    </Row>
+                    {this.state.statusMessage != "" &&
+                        <Row size={5} style={{ alignItems: 'center', justifyContent: 'center' }}>
+                            <View>
+                                <Text style={{ color: 'red' }}>{this.state.statusMessage}</Text>
+                            </View>
+                        </Row>
+                    }
                 </Grid>
 
 

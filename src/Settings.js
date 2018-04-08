@@ -31,25 +31,23 @@ export default class Settings extends React.Component<Props, State> {
     }
 
     componentDidMount() {
-        try {
-            AsyncStorage.getItem('serverURL')
-                .then((value) => { 
-                    console.log("Got value from storage: " + value);
-                    this.setState({ storedServerValue: value })
-                })
-        } 
-        catch (error) {
-            console.error(error);
-            // Error retrieving data
-        }
+        AsyncStorage.getItem('serverURL')
+            .then((value) => {
+                console.log("Got value from storage: " + value);
+                this.setState({ storedServerValue: value })
+            })
     }
 
     changeServerValue(text: string) {
-        this.setState({ inputServerValue: text });
+        if (text != null && text != "") {
+            this.setState({ inputServerValue: text });
+        }
     }
 
     leaveSettings() {
-        AsyncStorage.setItem('serverURL', this.state.inputServerValue);
+        if (this.state.inputServerValue != null && this.state.inputServerValue != "") {
+            AsyncStorage.setItem('serverURL', this.state.inputServerValue);
+        }
         this.props.navigation.goBack();
     }
 
@@ -70,14 +68,13 @@ export default class Settings extends React.Component<Props, State> {
                     <Right />
                 </Header>
                 <View>
-                    <Text>Please set your stove URL.</Text>
-                    <Text>Current stored value: {this.state.storedServerValue}</Text>
-                    <Text>Current input value: {this.state.inputServerValue}</Text>
+                    <Text>Change your stove URL below, if needed.</Text>
+                    <Text>Current stove URL value: {this.state.storedServerValue}</Text>
                 </View>
                 <Content>
                     <Item regular>
                         <Input
-                            placeholder='No value'
+                            placeholder='192.168.0.173 (for example)'
                             value={this.state.inputServerValue}
                             onChangeText={(text) => this.changeServerValue(text)}
                         />
