@@ -242,7 +242,7 @@ export default class HomeScreen extends React.Component<Props, State> {
             .then((serviceResponseJson) => {
                 let temp = serviceResponseJson.return_value;
 
-                if (temp < 200) {
+                if (!isNaN(temp) && temp < 200 && temp > -100) {
                     thisApp.setState({
                         temperature: temp,
                         lastGoodTemperature: temp,
@@ -268,7 +268,7 @@ export default class HomeScreen extends React.Component<Props, State> {
             .then((serviceResponseJson) => {
                 let humidity = serviceResponseJson.return_value;
 
-                if (humidity < 200) {
+                if (!isNaN(humidity) && humidity < 200 && humidity > -100) {
                     thisApp.setState({
                         humidity: humidity,
                         lastGoodHumidity: humidity,
