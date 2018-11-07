@@ -317,7 +317,7 @@ export default class HomeScreen extends React.Component<Props, State> {
                 <Header>
                     <Left>
                         <Button transparent onPress={() => this.props.navigation.navigate("DrawerOpen")}>
-                            <Icon name="menu" />
+                            <Icon name="ios-menu" />
                         </Button>
                     </Left>
                     <Body>
@@ -334,7 +334,7 @@ export default class HomeScreen extends React.Component<Props, State> {
                             </Row>
                             <Row size={66} style={{ alignItems: 'center', justifyContent: 'space-around' }} >
                                 <View size={25}>
-                                    <Icon style={{ fontSize: 45, color: 'white' }} name="ios-thermometer-outline" />
+                                    <Icon style={{ fontSize: 45, color: 'white' }} name="ios-thermometer" />
                                 </View>
                                 <View size={75}>
                                     <Text style={{ fontSize: 60, color: 'white' }}>{this.state.temperature}&deg;</Text>
@@ -347,7 +347,7 @@ export default class HomeScreen extends React.Component<Props, State> {
                             </Row>
                             <Row size={66} style={{ alignItems: 'center', justifyContent: 'space-around' }} >
                                 <View size={25}>
-                                    <Icon style={{ fontSize: 45 }} name="ios-rainy-outline" />
+                                    <Icon style={{ fontSize: 45 }} name="ios-rainy" />
                                 </View>
                                 <View size={75}>
                                     <Text style={{ fontSize: 60 }}>{this.state.humidity}%</Text>
