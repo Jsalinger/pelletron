@@ -6,7 +6,7 @@
     "babel-preset-flow": "^6.23.0",
     "babel-preset-react-native-stage-0": "^1.0.1",
     "flow-bin": "^0.56.0",
-    "jest-expo": "30.0.0",
+    "jest-expo": "47.0.1",
     "react-devtools": "^3.1.0",
     "react-test-renderer": "16.0.0"
   },
@@ -24,7 +24,7 @@
     "@expo/vector-icons": "^8.0.0",
     "native-base": "2.8.1",
     "react": "16.6.0-alpha.8af6728",
-    "react-native": "0.57.4",
+    "react-native": "0.57.8",
     "react-native-vector-icons": "^6.0.2",
     "react-navigation": "^1.5.1",
     "valid-url": "^1.0.9"
